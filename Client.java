@@ -2,9 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class MultiEchoClient
+public class Client
 {
-
 	public static void main(String[] args) throws IOException
 	{
 		InetAddress host = null;
@@ -25,8 +24,11 @@ public class MultiEchoClient
 		socket = new Socket(host, PORT);
 		networkInput = new Scanner(socket.getInputStream());
 		output = new PrintWriter(socket.getOutputStream(),true);
-
 		keyboard = new Scanner(System.in);
+
+		System.out.print("Please enter your name: ");
+		String name = keyboard.nextLine();
+		User user = new User(name, socket);
 
 		String message, response;
 
