@@ -41,14 +41,14 @@ class ClientHandler extends Thread
 	private Scanner input;
 	private PrintWriter output;
 	private User user;
-	private ArrayList<User> userList;
+	static private ArrayList<User> userList;
 
 	public ClientHandler(Socket socket) throws IOException
 	{
 		client = socket;
 
 		input = new Scanner(client.getInputStream());
-		output = new PrintWriter(client.getOutputStream(),true);
+		output = new PrintWriter(client.getOutputStream(), true);
 	}
 
 	public void run()
@@ -59,11 +59,15 @@ class ClientHandler extends Thread
 		received = input.nextLine();
 		user = new User(received, client);
 		userList.add(user);
-		System.out.println("User " + user.getUsername() + ", Socket " + user.getSocket() + " initialised.");
+		System.out.println(user.getUsername() + ", " + user.getSocket() + " initialised.");
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
-			output.println(user.getUsername() + ": " + received);
+			output.print("Connected users: ");
+			for (User user : userList) {
+				output.print(user.getUsername() + " ");
+			}
+			output.println(user.getUsername() + "> " + received);
 			received = input.nextLine();
 		}
 
