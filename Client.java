@@ -9,7 +9,7 @@ public class Client
 		InetAddress host = null;
 		final int PORT = 1234;
 		Socket socket;
-		Scanner networkInput,keyboard;
+		Scanner networkInput, keyboard;
 		PrintWriter output;
 
 		try
@@ -28,9 +28,9 @@ public class Client
 
 		System.out.print("Please enter your name: ");
 		String name = keyboard.nextLine();
-		User user = new User(name, socket);
+		output.println(name);
 
-		String message, response;
+ 		String message, response;
 
 		do
 		{
@@ -48,6 +48,7 @@ public class Client
 		{
 			System.out.println("\nClosing down connection...\n");
 			socket.close();
+			keyboard.close();
 		}
 		catch(IOException ioEx)
 		{

@@ -4,13 +4,13 @@ import java.util.*;
 
 public class Server
 {
-
 	public static void main(String[] args) throws IOException
 	{
 		ServerSocket serverSocket = null;
 		final int PORT = 1234;
 		Socket client;
 		ClientHandler handler;
+
 
 		try
 		{
@@ -28,7 +28,6 @@ public class Server
 		{
 			//Wait for client.
 			client = serverSocket.accept();
-
 			System.out.println("\nNew client accepted.\n");
 			handler = new ClientHandler(client);
 			handler.start();
@@ -41,6 +40,8 @@ class ClientHandler extends Thread
 	private Socket client;
 	private Scanner input;
 	private PrintWriter output;
+	private User user;
+	private ArrayList<User> userList;
 
 	public ClientHandler(Socket socket) throws IOException
 	{
@@ -53,11 +54,16 @@ class ClientHandler extends Thread
 	public void run()
 	{
 		String received;
+		userList = new ArrayList<>();
 
+		received = input.nextLine();
+		user = new User(received, client);
+		userList.add(user);
+		System.out.println("User " + user.getUsername() + ", Socket " + user.getSocket() + " initialised.");
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
-			output.println("ECHO: " + received);
+			output.println(user.getUsername() + ": " + received);
 			received = input.nextLine();
 		}
 

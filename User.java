@@ -5,10 +5,10 @@ public class User
 	private String username;
     private Socket socket;
 
-    public void User(String username, Socket socket)
+    public User(String username, Socket socket)
     {
-        username = this.username;
-        socket = this.socket;
+        this.username = username;
+        this.socket = socket;
     }
 
     public String getUsername()
