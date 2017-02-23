@@ -41,7 +41,8 @@ class ClientHandler extends Thread
 	private Scanner input;
 	private PrintWriter output;
 	private User user;
-	static private ArrayList<User> userList;
+	private static ArrayList<User> userList = new ArrayList<>();
+	private static String message = "";
 
 	public ClientHandler(Socket socket) throws IOException
 	{
@@ -54,20 +55,26 @@ class ClientHandler extends Thread
 	public void run()
 	{
 		String received;
-		userList = new ArrayList<>();
 
 		received = input.nextLine();
 		user = new User(received, client);
 		userList.add(user);
-		System.out.println(user.getUsername() + ", " + user.getSocket() + " initialised.");
+		System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
+		message = user.getUsername() + " connected.";
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
-			output.print("Connected users: ");
-			for (User user : userList) {
-				output.print(user.getUsername() + " ");
+			if (received.equals("DEBUG"))
+				outputMessages();
+			else
+			{
+				message = user.getUsername() + "> " + received;
+				output.println(message);
 			}
-			output.println(user.getUsername() + "> " + received);
+			// output.print("Connected users: ");
+			// for (User user : userList)
+			// 	output.print(user.getUsername() + " ");
+			// output.println(user.getUsername() + "> " + received);
 			received = input.nextLine();
 		}
 
@@ -75,10 +82,17 @@ class ClientHandler extends Thread
 		{
 			System.out.println("Closing down connection...");
 			client.close();
+			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
+			message = user.getUsername() + " disconnected";
 		}
 		catch(IOException ioEx)
 		{
 			System.out.println("* Disconnection problem! *");
 		}
+	}
+	public void outputMessages()
+	{
+		//DEBUG
+		output.println(message);
 	}
 }
