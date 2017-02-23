@@ -60,10 +60,10 @@ class ClientHandler extends Thread
 		userList.add(user);
 		System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
 		updateMessage(user.getUsername() + " has connected.");
+		updateUserList();
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
-			updateUserList();
 			if (!received.equals("DEBUG"))
 				updateMessage(user.getUsername() + "> " + received);
 			outputMessage();
@@ -77,6 +77,7 @@ class ClientHandler extends Thread
 			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
 			updateMessage(user.getUsername() + " has disconnected.");
 			userList.remove(userList.indexOf(user));
+			updateUserList();
 		}
 		catch(IOException ioEx)
 		{
@@ -99,5 +100,6 @@ class ClientHandler extends Thread
 	public void outputMessage()
 	{
 		output.println(message);
+		updateMessage("");
 	}
 }
