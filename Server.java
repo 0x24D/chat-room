@@ -76,8 +76,7 @@ class ClientHandler extends Thread
 			client.close();
 			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
 			updateMessage(user.getUsername() + " has disconnected.");
-			//userList.remove(userList.indexOf(user));
-			userList.remove(user.getUsername());
+			userList.remove(userList.indexOf(user));
 		}
 		catch(IOException ioEx)
 		{
