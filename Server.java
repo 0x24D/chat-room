@@ -11,7 +11,6 @@ public class Server
 		Socket client;
 		ClientHandler handler;
 
-
 		try
 		{
 			serverSocket = new ServerSocket(PORT);
@@ -60,7 +59,7 @@ class ClientHandler extends Thread
 		user = new User(received, client);
 		userList.add(user);
 		System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
-		updateMessage(user.getUsername() + " connected.");
+		updateMessage(user.getUsername() + " has connected.");
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
@@ -76,8 +75,9 @@ class ClientHandler extends Thread
 			System.out.println("Closing down connection...");
 			client.close();
 			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
-			message = user.getUsername() + " disconnected";
-			//remove userList
+			updateMessage(user.getUsername() + " has disconnected.");
+			//userList.remove(userList.indexOf(user));
+			userList.remove(user.getUsername());
 		}
 		catch(IOException ioEx)
 		{
