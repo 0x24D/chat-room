@@ -15,7 +15,7 @@ public class Server
 		{
 			serverSocket = new ServerSocket(PORT);
 		}
-		catch (IOException ioEx)
+		catch (IOException e)
 		{
 			System.out.println("\nUnable to set up port!");
 			System.exit(1);
@@ -59,29 +59,28 @@ class ClientHandler extends Thread
 		user = new User(received, client);
 		userList.add(user);
 		System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
-		updateMessage(user.getUsername() + " has connected.");
+		outputMessage(user.getUsername() + " has connected.");
 		updateUserList();
 		received = input.nextLine();
 		while (!received.equals("QUIT"))
 		{
-			if (!received.equals("DEBUG"))
-				updateMessage(user.getUsername() + "> " + received);
-			outputMessage();
+			outputMessage(user.getUsername() + "> " + received);
 			received = input.nextLine();
 		}
 
 		try
 		{
 			System.out.println("Closing down connection...");
-			client.close();
-			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
-			updateMessage(user.getUsername() + " has disconnected.");
-			userList.remove(userList.indexOf(user));
-			updateUserList();
 			input.close();
 			output.close();
+			client.close();
+			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
+			outputMessage(user.getUsername() + " has disconnected.");
+			userList.remove(userList.indexOf(user));
+			updateUserList();
+
 		}
-		catch(IOException ioEx)
+		catch(IOException e)
 		{
 			System.out.println("* Disconnection problem! *");
 		}
@@ -99,9 +98,19 @@ class ClientHandler extends Thread
 			output.print(user.getUsername() + " ");
 	}
 
-	public void outputMessage()
+	public void outputMessage(String message)
 	{
-		output.println(message);
-		updateMessage("");
+		Socket userSocket;
+		try{
+			for (User user : userList) {
+				output = new PrintWriter((user.getSocket()).getOutputStream(), true);
+				output.println(message);
+			}
+		}
+		catch(IOException e)
+		{
+			System.out.println(e);
+		}
+
 	}
 }
