@@ -41,14 +41,12 @@ class ClientHandler extends Thread
 	private PrintWriter output;
 	private User user;
 	private static ArrayList<User> userList = new ArrayList<>();
-	private static String message = "";
 
 	public ClientHandler(Socket socket) throws IOException
 	{
 		client = socket;
 
 		input = new Scanner(client.getInputStream());
-		output = new PrintWriter(client.getOutputStream(), true);
 	}
 
 	public void run()
@@ -85,12 +83,6 @@ class ClientHandler extends Thread
 			System.out.println("* Disconnection problem! *");
 		}
 	}
-
-	public synchronized void updateMessage(String message)
-	{
-		this.message = message;
-	}
-
 	public void updateUserList()
 	{
 		output.print("Connected users: ");
