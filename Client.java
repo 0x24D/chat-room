@@ -7,22 +7,19 @@ import javax.swing.*;
 
 public class Client extends JFrame
 {
+	private static JTextArea outputField, inputField;
+	private static JList<String> userList;
+	private static Vector<String> users;
+
 	public static void main(String[] args) throws IOException
 	{
 		InetAddress host = null;
 		final int PORT = 1234;
 		Socket socket;
-		Scanner keyboard;
+		Scanner keyboard, networkInput;
 		PrintWriter output;
 		MessageThread thread;
-
-		Client frame = new Client();
-
-
-		frame.setTitle("Chat Client");
-		frame.setSize(600,500);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		Client frame;
 
 		try
 		{
@@ -30,59 +27,96 @@ public class Client extends JFrame
 		}
 		catch(UnknownHostException uhEx)
 		{
-			System.out.println("\nHost ID not found!\n");
+			outputField.append("\nHost ID not found!\n");
 		}
 
 		socket = new Socket(host, PORT);
 		output = new PrintWriter(socket.getOutputStream(),true);
 		keyboard = new Scanner(System.in);
-		thread = new MessageThread(socket);
+		networkInput = new Scanner(socket.getInputStream());
+		thread = new MessageThread(networkInput);
+		frame = new Client(output);
 
+		frame.setTitle("Chat Client");
+		frame.setSize(600,500);
+		frame.setVisible(true);
 		thread.start();
-		System.out.print("Please enter your name: ");
-		String name = keyboard.nextLine();
-		output.println(name);
+		outputField.append("Please enter your name: ");
 
+ 		String message = networkInput.nextLine();
 
- 		String message;
+		outputField.setText("");
 
-		do
+		while (!message.equals("UserQuit"))
 		{
-			System.out.print("\nEnter message ('QUIT' to exit): ");
-			message = keyboard.nextLine();
-			output.println(message);
-		}while (!message.equals("QUIT"));
+			if (message.equals("CUStart"))
+			{
+				message = networkInput.nextLine();
+				users.clear();
+				while (!message.equals("CUEnd"))
+				{
+					users.add(message);
+					message = networkInput.nextLine();
+				}
+				userList.setListData(users);
+				message = networkInput.nextLine(); //CUEnd not output to chat
+			}
+			else
+			{
+				outputField.append(message + "\n");
+				message = networkInput.nextLine();
+			}
+		}
 
 		try
 		{
-			System.out.println("\nClosing down connection...\n");
+			outputField.append("\nClosing down connection...\n");
+			users.clear();
+			userList.setListData(users);
 			socket.close();
 			keyboard.close();
 		}
 		catch(IOException ioEx)
 		{
-			System.out.println("\n* Disconnection problem! *\n");
+			outputField.append("\n* Disconnection problem! *\n");
+		}
+	}
+	class Listener extends WindowAdapter
+	{
+		public Listener(PrintWriter output)
+		{
+		}
+
+		public void windowClosing(WindowEvent e)
+		{
+			outputMessage(output, "QUIT");
+			System.exit(0);
 		}
 	}
 
-	public Client()
+	public static void sendMessage(PrintWriter output, String message)
+	{
+		output.println(message);
+	}
+
+	public Client(PrintWriter output)
 	{
 		JPanel leftPanel, rightPanel;
 		JButton sendButton, quitButton;
 		ButtonHandler handler;
 		JLabel inputLabel;
-		JTextArea outputField, inputField;
-		JList<String> userList;
-		String[] users = {""};
+		Listener listener;
 
+		users = new Vector<String>();
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
 		outputField = new JTextArea(50,50);
 		inputLabel  = new JLabel("Enter message ('QUIT') to exit:");
 		inputField = new JTextArea(20,50);
-		userList = new JList<String>(users);
+		userList = new JList<String>();
 		sendButton = new JButton("Send message.");
 		quitButton = new JButton("Quit.");
+		listener = new Listener(output);
 
 		outputField.setWrapStyleWord(true);
 		outputField.setLineWrap(true);
@@ -92,6 +126,8 @@ public class Client extends JFrame
 		inputField.setLineWrap(true);
 		inputField.setEditable(true);
 		inputField.setVisible(true);
+		userList.setVisibleRowCount(8);
+		userList.setVisible(true);
 
 		leftPanel.setLayout(new GridLayout(3,1));
 		rightPanel.setLayout(new GridLayout(3,1));
@@ -106,16 +142,31 @@ public class Client extends JFrame
 		rightPanel.add(sendButton);
 		rightPanel.add(quitButton);
 
-		handler = new ButtonHandler();
+		handler = new ButtonHandler(output);
+		sendButton.addActionListener(handler);
 		quitButton.addActionListener(handler);
+		addWindowListener(listener);
 
 	}
 
 	class ButtonHandler implements ActionListener
 	{
+		private PrintWriter output;
+
+		public ButtonHandler(PrintWriter output)
+		{
+			this.output = output;
+		}
+
 		public void actionPerformed(ActionEvent e)
 		{
-			//output QUIT to server
+			// if (e.getSource() == "sendButton")
+			// {
+				sendMessage(output, inputField.getText());
+				inputField.setText("");
+			// }
+			// else
+			// 	sendMessage(output, "QUIT");
 		}
 	}
 
@@ -123,18 +174,16 @@ public class Client extends JFrame
 
 class MessageThread extends Thread
 {
-	private Scanner networkInput;
 
-	public MessageThread(Socket socket) throws IOException
+	public MessageThread(Scanner networkInput)
 	{
-		networkInput = new Scanner(socket.getInputStream());
 	}
 
-	public void run()
+	public void run(JTextArea outputField, Scanner networkInput)
 	{
 		do
 		{
-			System.out.println(networkInput.nextLine());
+			outputField.append(networkInput.nextLine());
 		} while (true);
 	}
 
