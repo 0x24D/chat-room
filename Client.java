@@ -41,7 +41,7 @@ public class Client extends JFrame
 		frame.setSize(600,500);
 		frame.setVisible(true);
 		thread.start();
-		outputField.append("Please enter your name: ");
+		outputField.append("Please enter your name: "); //move to server
 
  		String message = networkInput.nextLine();
 
@@ -83,13 +83,14 @@ public class Client extends JFrame
 	}
 	class Listener extends WindowAdapter
 	{
+		PrintWriter output;
 		public Listener(PrintWriter output)
 		{
 		}
 
 		public void windowClosing(WindowEvent e)
 		{
-			outputMessage(output, "QUIT");
+			output.println("QUIT");
 			System.exit(0);
 		}
 	}
@@ -181,10 +182,12 @@ class MessageThread extends Thread
 
 	public void run(JTextArea outputField, Scanner networkInput)
 	{
-		do
+		String message = networkInput.nextLine();
+		while (message != "UserQuit")
 		{
-			outputField.append(networkInput.nextLine());
-		} while (true);
+			outputField.append(message);
+			message = networkInput.nextLine();
+		}
 	}
 
 }

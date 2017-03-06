@@ -51,19 +51,20 @@ class ClientHandler extends Thread
 
 	public void run()
 	{
-		String received;
-
-		received = input.nextLine();
-		user = new User(received, client);
-		userList.add(user);
-		System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
-		outputMessage(user.getUsername() + " has connected.");
-		updateUserList();
-		received = input.nextLine();
-		while (!received.equals("QUIT"))
+		String received = input.nextLine();
+		if (!received.equals("QUIT"))
 		{
-			outputMessage(user.getUsername() + "> " + received);
+			user = new User(received, client);
+			userList.add(user);
+			System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
+			outputMessage(user.getUsername() + " has connected.");
+			updateUserList();
 			received = input.nextLine();
+			while (!received.equals("QUIT"))
+			{
+				outputMessage(user.getUsername() + "> " + received);
+				received = input.nextLine();
+			}
 		}
 
 		try
@@ -106,7 +107,7 @@ class ClientHandler extends Thread
 		}
 	}
 
-	public void outputMessage(String message) throws IOException
+	public void outputMessage(String message)
 	{
 		PrintWriter tempOutput;
 		try
