@@ -47,7 +47,6 @@ class ClientHandler extends Thread
 		client = socket;
 		input = new Scanner(client.getInputStream());
 		output = new PrintWriter(client.getOutputStream(), true);
-
 	}
 
 	public void run()

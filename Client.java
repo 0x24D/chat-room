@@ -42,9 +42,8 @@ public class Client extends JFrame
 		frame.setVisible(true);
 		thread.start();
 
- 		String message = networkInput.nextLine();
-		outputField.append(message);
-		message = networkInput.nextLine();
+		outputField.append(networkInput.nextLine());
+		String message = networkInput.nextLine();
 		outputField.setText("");
 
 		while (!message.equals("UserQuit"))
@@ -104,7 +103,8 @@ public class Client extends JFrame
 	{
 		JPanel leftPanel, rightPanel;
 		JButton sendButton, quitButton;
-		ButtonHandler handler;
+		SendButtonHandler sendHandler;
+		QuitButtonHandler quitHandler;
 		JLabel inputLabel;
 		Listener listener;
 
@@ -143,31 +143,41 @@ public class Client extends JFrame
 		rightPanel.add(sendButton);
 		rightPanel.add(quitButton);
 
-		handler = new ButtonHandler(output);
-		sendButton.addActionListener(handler);
-		quitButton.addActionListener(handler);
+		sendHandler = new SendButtonHandler(output);
+		quitHandler = new QuitButtonHandler(output);
+		sendButton.addActionListener(sendHandler);
+		quitButton.addActionListener(quitHandler);
 		addWindowListener(listener);
-
 	}
 
-	class ButtonHandler implements ActionListener
+	class SendButtonHandler implements ActionListener
 	{
 		private PrintWriter output;
 
-		public ButtonHandler(PrintWriter output)
+		public SendButtonHandler(PrintWriter output)
 		{
 			this.output = output;
 		}
 
 		public void actionPerformed(ActionEvent e)
 		{
-			// if (e.getSource() == "sendButton")
-			// {
-				sendMessage(output, inputField.getText());
-				inputField.setText("");
-			// }
-			// else
-			// 	sendMessage(output, "QUIT");
+			sendMessage(output, inputField.getText());
+			inputField.setText("");
+		}
+	}
+
+	class QuitButtonHandler implements ActionListener
+	{
+		private PrintWriter output;
+
+		public QuitButtonHandler(PrintWriter output)
+		{
+			this.output = output;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			sendMessage(output, "QUIT");
 		}
 	}
 
