@@ -4,6 +4,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.*;
 
 public class Client extends JFrame
 {
@@ -38,8 +39,9 @@ public class Client extends JFrame
 		frame = new Client(output);
 
 		frame.setTitle("Chat Client");
-		frame.setSize(600,500);
+		frame.setSize(800,750);
 		frame.setVisible(true);
+		frame.pack();
 		thread.start();
 
 		outputField.append(networkInput.nextLine());
@@ -80,6 +82,82 @@ public class Client extends JFrame
 			outputField.append("\n* Disconnection problem! *\n");
 		}
 	}
+
+	public Client(PrintWriter output)
+	{
+		JPanel panel, leftPanel, rightPanel;
+		JPanel outputPanel, inputPanel, usersPanel, buttonsPanel;
+		JButton sendButton, quitButton;
+		JLabel usersLabel;
+		SendButtonHandler sendHandler;
+		QuitButtonHandler quitHandler;
+		Listener listener;
+
+		users = new Vector<String>();
+		panel = new JPanel();
+		leftPanel = new JPanel();
+		rightPanel = new JPanel();
+		outputPanel = new JPanel();
+		inputPanel = new JPanel();
+		usersPanel = new JPanel();
+		buttonsPanel = new JPanel();
+		outputField = new JTextArea(10, 25);
+		inputField = new JTextArea(10, 25);
+		usersLabel = new JLabel("Connected users:");
+		userList = new JList<String>();
+		sendButton = new JButton("Send message.");
+		quitButton = new JButton("Quit.");
+		listener = new Listener(output);
+		sendHandler = new SendButtonHandler(output);
+		quitHandler = new QuitButtonHandler(output);
+
+		outputField.setWrapStyleWord(true);
+		outputField.setLineWrap(true);
+		outputField.setEditable(false);
+		outputField.setVisible(true);
+		inputField.setEditable(true);
+		inputField.setVisible(true);
+		userList.setVisible(true);
+
+		panel.setLayout(new GridLayout (1, 2));
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+		outputPanel.setLayout(new BoxLayout(outputPanel, BoxLayout.Y_AXIS));
+		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+
+		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		outputPanel.setBorder(new EmptyBorder(0, 0, 10, 10));
+		inputPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
+		usersPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+
+		sendButton.setSize(new Dimension(1000, 50));
+		quitButton.setSize(new Dimension(200, 50));
+
+		add(panel);
+		panel.add(leftPanel);
+		panel.add(rightPanel);
+		leftPanel.add(outputPanel);
+		leftPanel.add(inputPanel);
+		rightPanel.add(usersPanel);
+		rightPanel.add(buttonsPanel);
+		outputPanel.add(new JScrollPane(outputField));
+		inputPanel.add(new JScrollPane(inputField));
+		usersPanel.add(usersLabel);
+		usersPanel.add(new JScrollPane(userList));
+		buttonsPanel.add(sendButton);
+		buttonsPanel.add(quitButton);
+
+		usersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		quitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+		sendButton.addActionListener(sendHandler);
+		quitButton.addActionListener(quitHandler);
+		addWindowListener(listener);
+	}
+
 	class Listener extends WindowAdapter
 	{
 		PrintWriter output;
@@ -89,66 +167,11 @@ public class Client extends JFrame
 
 		public void windowClosing(WindowEvent e)
 		{
-			output.println("QUIT");
+			output.println("/quit");
 			System.exit(0);
 		}
 	}
 
-	public static void sendMessage(PrintWriter output, String message)
-	{
-		output.println(message);
-	}
-
-	public Client(PrintWriter output)
-	{
-		JPanel leftPanel, rightPanel;
-		JButton sendButton, quitButton;
-		SendButtonHandler sendHandler;
-		QuitButtonHandler quitHandler;
-		JLabel inputLabel;
-		Listener listener;
-
-		users = new Vector<String>();
-		leftPanel = new JPanel();
-		rightPanel = new JPanel();
-		outputField = new JTextArea(50,50);
-		inputLabel  = new JLabel("Enter message ('QUIT') to exit:");
-		inputField = new JTextArea(20,50);
-		userList = new JList<String>();
-		sendButton = new JButton("Send message.");
-		quitButton = new JButton("Quit.");
-		listener = new Listener(output);
-
-		outputField.setWrapStyleWord(true);
-		outputField.setLineWrap(true);
-		outputField.setEditable(false);
-		outputField.setVisible(true);
-		inputField.setWrapStyleWord(true);
-		inputField.setLineWrap(true);
-		inputField.setEditable(true);
-		inputField.setVisible(true);
-		userList.setVisibleRowCount(8);
-		userList.setVisible(true);
-
-		leftPanel.setLayout(new GridLayout(3,1));
-		rightPanel.setLayout(new GridLayout(3,1));
-		setLayout(new GridLayout (1,2));
-
-		add(leftPanel);
-		add(rightPanel);
-		leftPanel.add(new JScrollPane(outputField));
-		leftPanel.add(inputLabel);
-		leftPanel.add(new JScrollPane(inputField));
-		rightPanel.add(new JScrollPane(userList));
-		rightPanel.add(sendButton);
-		rightPanel.add(quitButton);
-
-		sendHandler = new SendButtonHandler(output);
-		quitHandler = new QuitButtonHandler(output);
-		sendButton.addActionListener(sendHandler);
-		quitButton.addActionListener(quitHandler);
-		addWindowListener(listener);
-	}
 
 	class SendButtonHandler implements ActionListener
 	{
@@ -177,10 +200,14 @@ public class Client extends JFrame
 
 		public void actionPerformed(ActionEvent e)
 		{
-			sendMessage(output, "QUIT");
+			sendMessage(output, "/quit");
 		}
 	}
 
+	public static void sendMessage(PrintWriter output, String message)
+	{
+		output.println(message);
+	}
 }
 
 class MessageThread extends Thread

@@ -53,7 +53,7 @@ class ClientHandler extends Thread
 	{
 		output.println("Please enter your name:");
 		String received = input.nextLine();
-		if (!received.equals("QUIT"))
+		if (!received.equals("/quit"))
 		{
 			user = new User(received, client);
 			userList.add(user);
@@ -61,7 +61,7 @@ class ClientHandler extends Thread
 			outputMessage(user.getUsername() + " has connected.");
 			updateUserList();
 			received = input.nextLine();
-			while (!received.equals("QUIT"))
+			while (!received.equals("/quit"))
 			{
 				outputMessage(user.getUsername() + "> " + received);
 				received = input.nextLine();
@@ -123,28 +123,27 @@ class ClientHandler extends Thread
 		{
 			System.out.println(e);
 		}
-
 	}
 }
 
 class User
 {
 	private String username;
-    private Socket socket;
+	private Socket socket;
 
-    public User(String username, Socket socket)
-    {
-        this.username = username;
-        this.socket = socket;
-    }
+	public User(String username, Socket socket)
+	{
+		this.username = username;
+		this.socket = socket;
+	}
 
-    public String getUsername()
-    {
-        return username;
-    }
+	public String getUsername()
+	{
+		return username;
+	}
 
-    public Socket getSocket()
-    {
-        return socket;
-    }
+	public Socket getSocket()
+	{
+		return socket;
+	}
 }
