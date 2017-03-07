@@ -41,10 +41,10 @@ public class Client extends JFrame
 		frame.setSize(600,500);
 		frame.setVisible(true);
 		thread.start();
-		outputField.append("Please enter your name: "); //move to server
 
  		String message = networkInput.nextLine();
-
+		outputField.append(message);
+		message = networkInput.nextLine();
 		outputField.setText("");
 
 		while (!message.equals("UserQuit"))

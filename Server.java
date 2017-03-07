@@ -47,10 +47,12 @@ class ClientHandler extends Thread
 		client = socket;
 		input = new Scanner(client.getInputStream());
 		output = new PrintWriter(client.getOutputStream(), true);
+
 	}
 
 	public void run()
 	{
+		output.println("Please enter your name:");
 		String received = input.nextLine();
 		if (!received.equals("QUIT"))
 		{
@@ -126,7 +128,7 @@ class ClientHandler extends Thread
 	}
 }
 
-public class User
+class User
 {
 	private String username;
     private Socket socket;
