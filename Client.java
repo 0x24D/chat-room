@@ -8,7 +8,8 @@ import javax.swing.border.*;
 
 public class Client extends JFrame
 {
-	private static JTextArea outputField, inputField;
+	private static JTextArea outputField;
+	private static JTextField inputField;
 	private static JList<String> userList;
 	private static Vector<String> users;
 
@@ -89,8 +90,6 @@ public class Client extends JFrame
 		JPanel outputPanel, inputPanel, usersPanel, buttonsPanel;
 		JButton sendButton, quitButton;
 		JLabel usersLabel;
-		SendButtonHandler sendHandler;
-		QuitButtonHandler quitHandler;
 		Listener listener;
 
 		users = new Vector<String>();
@@ -103,13 +102,11 @@ public class Client extends JFrame
 		usersPanel = new JPanel();
 		buttonsPanel = new JPanel();
 		outputField = new JTextArea(34, 45);
-		inputField = new JTextArea(2, 45);
+		inputField = new JTextField(44);
 		usersLabel = new JLabel("Connected users:");
 		sendButton = new JButton("Send message.");
 		quitButton = new JButton("Quit.");
 		listener = new Listener(output);
-		sendHandler = new SendButtonHandler(output);
-		quitHandler = new QuitButtonHandler(output);
 
 		outputField.setWrapStyleWord(true);
 		outputField.setLineWrap(true);
@@ -120,8 +117,6 @@ public class Client extends JFrame
 		outputField.setVisible(true);
 		inputField.setVisible(true);
 		userList.setVisible(true);
-
-
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -154,8 +149,40 @@ public class Client extends JFrame
 		sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		quitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		sendButton.addActionListener(sendHandler);
-		quitButton.addActionListener(quitHandler);
+		sendButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				output.println(inputField.getText());
+				inputField.setText("");
+			}
+		});
+		quitButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				output.println("/quit");
+			}
+		});
+		inputField.addKeyListener(new KeyListener(){
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					e.consume();
+					output.println(inputField.getText());
+					inputField.setText("");
+				}
+			}
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+    		}
+
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+			}
+		});
 		addWindowListener(listener);
 	}
 
@@ -171,43 +198,6 @@ public class Client extends JFrame
 			output.println("/quit");
 			System.exit(0);
 		}
-	}
-
-
-	class SendButtonHandler implements ActionListener
-	{
-		private PrintWriter output;
-
-		public SendButtonHandler(PrintWriter output)
-		{
-			this.output = output;
-		}
-
-		public void actionPerformed(ActionEvent e)
-		{
-			sendMessage(output, inputField.getText());
-			inputField.setText("");
-		}
-	}
-
-	class QuitButtonHandler implements ActionListener
-	{
-		private PrintWriter output;
-
-		public QuitButtonHandler(PrintWriter output)
-		{
-			this.output = output;
-		}
-
-		public void actionPerformed(ActionEvent e)
-		{
-			sendMessage(output, "/quit");
-		}
-	}
-
-	public static void sendMessage(PrintWriter output, String message)
-	{
-		output.println(message);
 	}
 }
 
