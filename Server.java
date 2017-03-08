@@ -57,7 +57,8 @@ class ClientHandler extends Thread
 		{
 			user = new User(received, client);
 			userList.add(user);
-			System.out.println(user.getUsername() + ", " + user.getSocket() + " connected.");
+			System.out.println(user.getUsername() + ", "
+								+ user.getSocket() + " connected.");
 			outputMessage(user.getUsername() + " has connected.");
 			updateUserList();
 			received = input.nextLine();
@@ -72,7 +73,8 @@ class ClientHandler extends Thread
 		{
 			System.out.println("Closing down connection...");
 			output.println("UserQuit");
-			System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
+			System.out.println(user.getUsername() + ", "
+								+ user.getSocket() + " disconnected.");
 			outputMessage(user.getUsername() + " has disconnected.");
 			input.close();
 			output.close();
@@ -93,7 +95,8 @@ class ClientHandler extends Thread
 		{
 			for (User user : userList)
 			{
-				tempOutput = new PrintWriter((user.getSocket()).getOutputStream(), true);
+				tempOutput = new PrintWriter(
+						(user.getSocket()).getOutputStream(), true);
 				tempOutput.println("CUStart");
 				for (User connectedUser : userList)
 				{
@@ -115,7 +118,8 @@ class ClientHandler extends Thread
 		{
 			for (User user : userList)
 			{
-				tempOutput = new PrintWriter((user.getSocket()).getOutputStream(), true);
+				tempOutput = new PrintWriter(
+						(user.getSocket()).getOutputStream(), true);
 				tempOutput.println(message);
 			}
 		}
