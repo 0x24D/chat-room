@@ -39,7 +39,7 @@ public class Client extends JFrame
 		frame = new Client(output);
 
 		frame.setTitle("Chat Client");
-		frame.setSize(800,750);
+		frame.setSize(800,650);
 		frame.setVisible(true);
 		frame.pack();
 		thread.start();
@@ -94,6 +94,7 @@ public class Client extends JFrame
 		Listener listener;
 
 		users = new Vector<String>();
+		userList = new JList<String>();
 		panel = new JPanel();
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
@@ -101,10 +102,9 @@ public class Client extends JFrame
 		inputPanel = new JPanel();
 		usersPanel = new JPanel();
 		buttonsPanel = new JPanel();
-		outputField = new JTextArea(10, 25);
-		inputField = new JTextArea(10, 25);
+		outputField = new JTextArea(34, 45);
+		inputField = new JTextArea(2, 45);
 		usersLabel = new JLabel("Connected users:");
-		userList = new JList<String>();
 		sendButton = new JButton("Send message.");
 		quitButton = new JButton("Quit.");
 		listener = new Listener(output);
@@ -113,13 +113,17 @@ public class Client extends JFrame
 
 		outputField.setWrapStyleWord(true);
 		outputField.setLineWrap(true);
+
 		outputField.setEditable(false);
-		outputField.setVisible(true);
 		inputField.setEditable(true);
+
+		outputField.setVisible(true);
 		inputField.setVisible(true);
 		userList.setVisible(true);
 
-		panel.setLayout(new GridLayout (1, 2));
+
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
@@ -128,12 +132,9 @@ public class Client extends JFrame
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
 
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		outputPanel.setBorder(new EmptyBorder(0, 0, 10, 10));
+		outputPanel.setBorder(new EmptyBorder(16, 0, 10, 10));
 		inputPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
 		usersPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
-
-		sendButton.setSize(new Dimension(1000, 50));
-		quitButton.setSize(new Dimension(200, 50));
 
 		add(panel);
 		panel.add(leftPanel);
