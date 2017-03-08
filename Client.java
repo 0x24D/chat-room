@@ -168,7 +168,6 @@ public class Client extends JFrame
 			{
 				if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					e.consume();
 					output.println(inputField.getText());
 					inputField.setText("");
 				}
@@ -191,6 +190,7 @@ public class Client extends JFrame
 		PrintWriter output;
 		public Listener(PrintWriter output)
 		{
+			this.output = output;
 		}
 
 		public void windowClosing(WindowEvent e)
