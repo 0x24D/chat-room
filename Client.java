@@ -12,6 +12,7 @@ public class Client extends JFrame
 	private static JTextField inputField;
 	private static JList<String> userList;
 	private static Vector<String> users;
+	private static JPanel detailsPanel;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -44,6 +45,7 @@ public class Client extends JFrame
 		frame.setVisible(true);
 		frame.pack();
 		thread.start();
+		JOptionPane.showConfirmDialog(frame, detailsPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
 
 		outputField.append(networkInput.nextLine());
 		String message = networkInput.nextLine();
@@ -89,21 +91,28 @@ public class Client extends JFrame
 		JPanel panel, leftPanel, rightPanel;
 		JPanel outputPanel, inputPanel, usersPanel, buttonsPanel;
 		JButton sendButton, quitButton;
-		JLabel usersLabel;
+		JLabel usersLabel, userLabel, passwordLabel;
 		Listener listener;
+		JTextField userField;
+		JPasswordField passwordField;
 
 		users = new Vector<String>();
 		userList = new JList<String>();
 		panel = new JPanel();
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
+		detailsPanel = new JPanel();
 		outputPanel = new JPanel();
 		inputPanel = new JPanel();
 		usersPanel = new JPanel();
 		buttonsPanel = new JPanel();
 		outputField = new JTextArea(34, 45);
 		inputField = new JTextField(44);
+		userField = new JTextField(12);
+		passwordField = new JPasswordField(12);
 		usersLabel = new JLabel("Connected users:");
+		userLabel = new JLabel("Username: ");
+		passwordLabel = new JLabel("Password: ");
 		sendButton = new JButton("Send message.");
 		quitButton = new JButton("Quit.");
 		listener = new Listener(output);
@@ -113,6 +122,8 @@ public class Client extends JFrame
 
 		outputField.setEditable(false);
 		inputField.setEditable(true);
+		userField.setEditable(true);
+		passwordField.setEditable(true);
 
 		outputField.setVisible(true);
 		inputField.setVisible(true);
@@ -121,6 +132,7 @@ public class Client extends JFrame
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
 		outputPanel.setLayout(new BoxLayout(outputPanel, BoxLayout.Y_AXIS));
 		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
@@ -130,6 +142,7 @@ public class Client extends JFrame
 		outputPanel.setBorder(new EmptyBorder(16, 0, 10, 10));
 		inputPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
 		usersPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+		detailsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		add(panel);
 		panel.add(leftPanel);
@@ -144,6 +157,10 @@ public class Client extends JFrame
 		usersPanel.add(new JScrollPane(userList));
 		buttonsPanel.add(sendButton);
 		buttonsPanel.add(quitButton);
+		detailsPanel.add(userLabel);
+		detailsPanel.add(userField);
+		detailsPanel.add(passwordLabel);
+		detailsPanel.add(passwordField);
 
 		usersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);

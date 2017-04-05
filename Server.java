@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.sql.*;
 
 public class Server
 {
@@ -41,17 +42,27 @@ class ClientHandler extends Thread
 	private PrintWriter output;
 	private User user;
 	private static ArrayList<User> userList = new ArrayList<>();
+	private Connection connection = null;
+	private Statement statement = null;
+	private ResultSet results = null;
 
 	public ClientHandler(Socket socket) throws IOException
 	{
 		client = socket;
 		input = new Scanner(client.getInputStream());
 		output = new PrintWriter(client.getOutputStream(), true);
+		try
+		{
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/chatroom","root","root");
+		}
+		catch(SQLException e)
+		{
+			output.println("\nCannot connect to database!\n");
+		}
 	}
 
 	public void run()
 	{
-		output.println("Please enter your name:");
 		String received = input.nextLine();
 		if (!received.equals("/quit"))
 		{
