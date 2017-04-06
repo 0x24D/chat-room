@@ -9,10 +9,11 @@ import javax.swing.border.*;
 public class Client extends JFrame
 {
 	private static JTextArea outputField;
-	private static JTextField inputField;
+	private static JTextField inputField, userField;
 	private static JList<String> userList;
 	private static Vector<String> users;
 	private static JPanel detailsPanel;
+	private static JPasswordField passwordField;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -47,7 +48,9 @@ public class Client extends JFrame
 		thread.start();
 		JOptionPane.showConfirmDialog(frame, detailsPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
 
-		outputField.append(networkInput.nextLine());
+		output.println(userField.getText());
+		output.println(passwordField.getText());
+		//outputField.append(networkInput.nextLine());
 		String message = networkInput.nextLine();
 		outputField.setText("");
 
@@ -93,8 +96,6 @@ public class Client extends JFrame
 		JButton sendButton, quitButton;
 		JLabel usersLabel, userLabel, passwordLabel;
 		Listener listener;
-		JTextField userField;
-		JPasswordField passwordField;
 
 		users = new Vector<String>();
 		userList = new JList<String>();

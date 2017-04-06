@@ -11,6 +11,7 @@ public class Server
 		final int PORT = 1234;
 		Socket client;
 		ClientHandler handler;
+		Connection connection = null;
 
 		try
 		{
@@ -22,6 +23,16 @@ public class Server
 			System.exit(1);
 		}
 
+		try
+		{
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/chatroom","root","root");
+		}
+		catch(SQLException e)
+		{
+			System.out.println("\nCannot connect to database!\n");
+			System.exit(1);
+		}
+
 		System.out.println("\nServer running...\n");
 
 		do
@@ -29,7 +40,7 @@ public class Server
 			//Wait for client.
 			client = serverSocket.accept();
 			System.out.println("\nNew client accepted.\n");
-			handler = new ClientHandler(client);
+			handler = new ClientHandler(client, connection);
 			handler.start();
 		}while (true);
 	}
@@ -42,43 +53,56 @@ class ClientHandler extends Thread
 	private PrintWriter output;
 	private User user;
 	private static ArrayList<User> userList = new ArrayList<>();
-	private Connection connection = null;
-	private Statement statement = null;
-	private ResultSet results = null;
+	private Connection connection;
 
-	public ClientHandler(Socket socket) throws IOException
+	public ClientHandler(Socket socket, Connection connection) throws IOException
 	{
 		client = socket;
 		input = new Scanner(client.getInputStream());
 		output = new PrintWriter(client.getOutputStream(), true);
-		try
-		{
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/chatroom","root","root");
-		}
-		catch(SQLException e)
-		{
-			output.println("\nCannot connect to database!\n");
-		}
+		this.connection = connection;
 	}
 
 	public void run()
 	{
-		String received = input.nextLine();
-		if (!received.equals("/quit"))
+		boolean validLogin = false;
+		String username = input.nextLine();
+		String password = input.nextLine();
+		String query = "SELECT password FROM Users WHERE username = '" + username + "';";
+
+		try
 		{
-			user = new User(received, client);
+			Statement statement = connection.createStatement();
+			ResultSet results = statement.executeQuery(query);
+
+			while(results.next() && !validLogin)
+			{
+				if (results.getString("password").equals(password))
+					validLogin = true;
+			}
+		}
+		catch(SQLException e)
+		{
+			output.println("\nUnable to validate user, please try again later.\n");
+		}
+
+		if (validLogin)
+		{
+			user = new User(username, client);
 			userList.add(user);
 			System.out.println(user.getUsername() + ", "
 								+ user.getSocket() + " connected.");
 			outputMessage(user.getUsername() + " has connected.");
 			updateUserList();
-			received = input.nextLine();
+			String received = input.nextLine();
 			while (!received.equals("/quit"))
 			{
 				outputMessage(user.getUsername() + "> " + received);
 				received = input.nextLine();
 			}
 		}
+		else
+			output.println("\nInvalid user! Open a new client to try again.\n");
 
 		try
 		{
