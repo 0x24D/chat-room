@@ -14,6 +14,7 @@ public class Client extends JFrame
 	private static Vector<String> users;
 	private static JPanel detailsPanel;
 	private static JPasswordField passwordField;
+	private static ImageIcon image;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -24,6 +25,7 @@ public class Client extends JFrame
 		PrintWriter output;
 		MessageThread thread;
 		Client frame;
+		ObjectInputStream fileIn;
 
 		try
 		{
@@ -38,6 +40,7 @@ public class Client extends JFrame
 		output = new PrintWriter(socket.getOutputStream(),true);
 		keyboard = new Scanner(System.in);
 		networkInput = new Scanner(socket.getInputStream());
+		fileIn = new ObjectInputStream(socket.getInputStream());
 		thread = new MessageThread(networkInput);
 		frame = new Client(output);
 
@@ -50,9 +53,7 @@ public class Client extends JFrame
 
 		output.println(userField.getText());
 		output.println(passwordField.getText());
-		//outputField.append(networkInput.nextLine());
 		String message = networkInput.nextLine();
-		outputField.setText("");
 
 		while (!message.equals("UserQuit"))
 		{
@@ -66,13 +67,26 @@ public class Client extends JFrame
 					message = networkInput.nextLine();
 				}
 				userList.setListData(users);
-				message = networkInput.nextLine(); //CUEnd not output to chat
+			}
+			else if(message.substring(0,12).equals("Opening file"))
+			{
+				try
+				{
+					image = (ImageIcon)fileIn.readObject();
+				}
+				catch(ClassNotFoundException e)
+				{
+					e.printStackTrace();
+				}
+				JDialog dialog = new JDialog();
+				JLabel label = new JLabel(image);
+				dialog.add(label);
+				dialog.pack();
+				dialog.setVisible(true);
 			}
 			else
-			{
 				outputField.append(message + "\n");
-				message = networkInput.nextLine();
-			}
+			message = networkInput.nextLine();
 		}
 
 		try

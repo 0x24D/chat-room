@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.sql.*;
+import javax.swing.*;
 
 public class Server
 {
@@ -51,6 +52,7 @@ class ClientHandler extends Thread
 	private Socket client;
 	private Scanner input;
 	private PrintWriter output;
+	private ObjectOutputStream fileOutput;
 	private User user;
 	private static ArrayList<User> userList = new ArrayList<>();
 	private Connection connection;
@@ -60,6 +62,7 @@ class ClientHandler extends Thread
 		client = socket;
 		input = new Scanner(client.getInputStream());
 		output = new PrintWriter(client.getOutputStream(), true);
+		fileOutput = new ObjectOutputStream(client.getOutputStream());
 		this.connection = connection;
 	}
 
@@ -83,26 +86,39 @@ class ClientHandler extends Thread
 		}
 		catch(SQLException e)
 		{
-			output.println("\nUnable to validate user, please try again later.\n");
+			output.println("Unable to validate user, please try again later.");
 		}
 
 		if (validLogin)
 		{
 			user = new User(username, client);
 			userList.add(user);
-			System.out.println(user.getUsername() + ", "
-								+ user.getSocket() + " connected.");
+			System.out.println(user.getUsername() + " connected.");
 			outputMessage(user.getUsername() + " has connected.");
 			updateUserList();
 			String received = input.nextLine();
 			while (!received.equals("/quit"))
 			{
-				outputMessage(user.getUsername() + "> " + received);
+				if(received.substring(0,5).equals("/open"))
+				{
+					try
+					{
+						output.println("Opening file: " + received.substring(6));
+						fileOutput.writeObject(new ImageIcon("media//" + received.substring(6)));
+						fileOutput.flush();
+					}
+					catch(IOException e)
+					{
+						output.println("Cannot send file.");
+					}
+				}
+				else
+					outputMessage(user.getUsername() + "> " + received);
 				received = input.nextLine();
 			}
 		}
 		else
-			output.println("\nInvalid user! Open a new client to try again.\n");
+			output.println("Invalid user! Open a new client to try again.");
 
 		try
 		{
