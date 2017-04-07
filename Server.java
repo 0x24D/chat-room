@@ -4,7 +4,6 @@ import java.util.*;
 import java.sql.*;
 import javax.swing.*;
 import java.io.File;
-import java.nio.file.Files;
 
 public class Server
 {
@@ -105,7 +104,22 @@ class ClientHandler extends Thread
 				{
 					String file = received.substring(6);
 					output.println("FileOpen:" + file);
-					sendFile("media" + File.separator + file, fileOutput);
+					file = "media" + File.separator + file;
+					try
+					{
+						FileInputStream fileInput = new FileInputStream(file);
+						long fLength = new File(file).length();
+						int intFLength = (int)fLength;
+						byte[] byteArray = new byte[intFLength];
+						fileInput.read(byteArray);
+						fileInput.close();
+						fileOutput.writeObject(byteArray);
+						fileOutput.flush();
+					}
+					catch (IOException e)
+					{
+						System.out.println(e);
+					}
 				}
 				else
 					outputMessage(user.getUsername() + "> " + received);
@@ -177,21 +191,7 @@ class ClientHandler extends Thread
 
 	public void sendFile(String file, ObjectOutputStream outputStream)
 	{
-		try
-		{
-			FileInputStream fileInput = new FileInputStream(file);
-			long fLength = new File(file).length();
-			int intFLength = (int)fLength;
-			byte[] byteArray = new byte[intFLength];
-			fileInput.read(byteArray);
-			fileInput.close();
-			outputStream.writeObject(byteArray);
-			outputStream.flush();
-		}
-		catch (IOException e)
-		{
-			System.out.println(e);
-		}
+
 	}
 }
 

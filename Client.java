@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.nio.file.Files;
 
 public class Client extends JFrame
 {
@@ -90,7 +91,36 @@ public class Client extends JFrame
 				// }
 				// else
 				// 	outputField.append("Unable to open file.\n");
-				getFile(fileIn, message.substring(9));
+				try
+				{
+					byte[] byteArray = (byte[])fileIn.readObject();
+	      			FileOutputStream fileOutput = new FileOutputStream(message.substring(9));
+					fileOutput.write(byteArray);
+					File file = new File(message.substring(9));
+					FileInputStream localFile = new FileInputStream(file);
+					String mimeType = Files.probeContentType(file.toPath());
+					JDialog dialog = new JDialog();
+
+					if(mimeType.substring(0,5).equals("image"))
+					{
+						byte[] fileByteArray = new byte[(int) file.length()];
+						localFile.read(fileByteArray);
+						localFile.close();
+						ImageIcon image = new ImageIcon(fileByteArray);
+						JLabel label = new JLabel(image);
+						dialog.add(label);
+					}
+					dialog.pack();
+					dialog.setVisible(true);
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace(); //change
+				}
+				catch(ClassNotFoundException e)
+				{
+					e.printStackTrace(); //change
+				}
 			}
 			else
 				outputField.append(message + "\n");
@@ -237,24 +267,6 @@ public class Client extends JFrame
 		{
 			output.println("/quit");
 			System.exit(0);
-		}
-	}
-
-	public static void getFile(ObjectInputStream inputStream, String file)
-	{
-		try
-		{
-			byte[] byteArray = (byte[])inputStream.readObject();
-      		FileOutputStream fileOutput = new FileOutputStream(file);
-			fileOutput.write(byteArray);
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace(); //change
-		}
-		catch(ClassNotFoundException e)
-		{
-			e.printStackTrace(); //change
 		}
 	}
 }
