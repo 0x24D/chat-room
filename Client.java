@@ -68,21 +68,29 @@ public class Client extends JFrame
 				}
 				userList.setListData(users);
 			}
-			else if(message.substring(0,12).equals("Opening file"))
+			else if(message.substring(0,8).equals("FileOpen"))
 			{
-				try
-				{
-					image = (ImageIcon)fileIn.readObject();
-				}
-				catch(ClassNotFoundException e)
-				{
-					e.printStackTrace();
-				}
-				JDialog dialog = new JDialog();
-				JLabel label = new JLabel(image);
-				dialog.add(label);
-				dialog.pack();
-				dialog.setVisible(true);
+				// File file = null;
+				// try
+				// {
+				// 	file = fileIn.readObject();
+				// }
+				// catch(ClassNotFoundException e)
+				// {
+				// 	e.printStackTrace();
+				// }
+				// JDialog dialog = new JDialog();
+				// if(object instanceof ImageIcon)
+				// {
+				// 	image = (ImageIcon) object;
+				// 	JLabel label = new JLabel(image);
+				// 	dialog.add(label);
+				// 	dialog.pack();
+				// 	dialog.setVisible(true);
+				// }
+				// else
+				// 	outputField.append("Unable to open file.\n");
+				getFile(fileIn, message.substring(9));
 			}
 			else
 				outputField.append(message + "\n");
@@ -229,6 +237,24 @@ public class Client extends JFrame
 		{
 			output.println("/quit");
 			System.exit(0);
+		}
+	}
+
+	public static void getFile(ObjectInputStream inputStream, String file)
+	{
+		try
+		{
+			byte[] byteArray = (byte[])inputStream.readObject();
+      		FileOutputStream fileOutput = new FileOutputStream(file);
+			fileOutput.write(byteArray);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace(); //change
+		}
+		catch(ClassNotFoundException e)
+		{
+			e.printStackTrace(); //change
 		}
 	}
 }

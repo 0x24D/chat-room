@@ -3,6 +3,8 @@ import java.net.*;
 import java.util.*;
 import java.sql.*;
 import javax.swing.*;
+import java.io.File;
+import java.nio.file.Files;
 
 public class Server
 {
@@ -101,16 +103,9 @@ class ClientHandler extends Thread
 			{
 				if(received.substring(0,5).equals("/open"))
 				{
-					try
-					{
-						output.println("Opening file: " + received.substring(6));
-						fileOutput.writeObject(new ImageIcon("media//" + received.substring(6)));
-						fileOutput.flush();
-					}
-					catch(IOException e)
-					{
-						output.println("Cannot send file.");
-					}
+					String file = received.substring(6);
+					output.println("FileOpen:" + file);
+					sendFile("media" + File.separator + file, fileOutput);
 				}
 				else
 					outputMessage(user.getUsername() + "> " + received);
@@ -175,6 +170,25 @@ class ClientHandler extends Thread
 			}
 		}
 		catch(IOException e)
+		{
+			System.out.println(e);
+		}
+	}
+
+	public void sendFile(String file, ObjectOutputStream outputStream)
+	{
+		try
+		{
+			FileInputStream fileInput = new FileInputStream(file);
+			long fLength = new File(file).length();
+			int intFLength = (int)fLength;
+			byte[] byteArray = new byte[intFLength];
+			fileInput.read(byteArray);
+			fileInput.close();
+			outputStream.writeObject(byteArray);
+			outputStream.flush();
+		}
+		catch (IOException e)
 		{
 			System.out.println(e);
 		}
