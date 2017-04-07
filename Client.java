@@ -71,26 +71,6 @@ public class Client extends JFrame
 			}
 			else if(message.substring(0,8).equals("FileOpen"))
 			{
-				// File file = null;
-				// try
-				// {
-				// 	file = fileIn.readObject();
-				// }
-				// catch(ClassNotFoundException e)
-				// {
-				// 	e.printStackTrace();
-				// }
-				// JDialog dialog = new JDialog();
-				// if(object instanceof ImageIcon)
-				// {
-				// 	image = (ImageIcon) object;
-				// 	JLabel label = new JLabel(image);
-				// 	dialog.add(label);
-				// 	dialog.pack();
-				// 	dialog.setVisible(true);
-				// }
-				// else
-				// 	outputField.append("Unable to open file.\n");
 				try
 				{
 					byte[] byteArray = (byte[])fileIn.readObject();
