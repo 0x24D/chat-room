@@ -6,8 +6,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.nio.file.Files;
+import javax.media.*;
 
-public class Client extends JFrame
+public class Client extends JFrame implements ControllerListener
 {
 	private static JTextArea outputField;
 	private static JTextField inputField, userField;
@@ -16,6 +17,8 @@ public class Client extends JFrame
 	private static JPanel detailsPanel;
 	private static JPasswordField passwordField;
 	private static ImageIcon image;
+	private static JDialog dialog;
+	private static Player player;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -53,7 +56,7 @@ public class Client extends JFrame
 		JOptionPane.showConfirmDialog(frame, detailsPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
 
 		output.println(userField.getText());
-		output.println(passwordField.getText());
+		output.println(passwordField.getPassword());
 		String message = networkInput.nextLine();
 
 		while (!message.equals("UserQuit"))
@@ -72,23 +75,41 @@ public class Client extends JFrame
 			else if(message.substring(0,8).equals("FileOpen"))
 			{
 				try
-				{
+				{	//download file
 					byte[] byteArray = (byte[])fileIn.readObject();
 	      			FileOutputStream fileOutput = new FileOutputStream(message.substring(9));
 					fileOutput.write(byteArray);
+
+					//get local file details
 					File file = new File(message.substring(9));
 					FileInputStream localFile = new FileInputStream(file);
-					String mimeType = Files.probeContentType(file.toPath());
-					JDialog dialog = new JDialog();
+					String mimeType = (Files.probeContentType(file.toPath())).substring(0,5);
 
-					if(mimeType.substring(0,5).equals("image"))
+					//open local file
+					dialog = new JDialog();
+					byte[] fileByteArray = new byte[(int) file.length()];
+					localFile.read(fileByteArray);
+					localFile.close();
+
+					if(mimeType.equals("image")) //display image
 					{
-						byte[] fileByteArray = new byte[(int) file.length()];
-						localFile.read(fileByteArray);
-						localFile.close();
 						ImageIcon image = new ImageIcon(fileByteArray);
 						JLabel label = new JLabel(image);
 						dialog.add(label);
+					}
+					else //display audio/video
+					{
+						URI uri = file.toURI();
+						try
+						{
+							player = Manager.createPlayer(uri.toURL());
+						}
+						catch(NoPlayerException e)
+						{
+							e.printStackTrace();
+						}
+						player.addControllerListener(frame);
+						player.start();
 					}
 					dialog.pack();
 					dialog.setVisible(true);
@@ -233,6 +254,23 @@ public class Client extends JFrame
 			}
 		});
 		addWindowListener(listener);
+	}
+
+	public void controllerUpdate(ControllerEvent e)
+	{
+		Container pane = dialog.getContentPane();
+
+		if(e instanceof RealizeCompleteEvent)
+		{
+			Component visualComponent = player.getVisualComponent();
+			if(visualComponent != null)
+				pane.add(visualComponent);
+
+			Component controlsComponent = player.getControlPanelComponent();
+			if(controlsComponent != null)
+				pane.add(controlsComponent);
+			pane.doLayout();
+		}
 	}
 
 	class Listener extends WindowAdapter

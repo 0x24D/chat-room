@@ -3,7 +3,6 @@ import java.net.*;
 import java.util.*;
 import java.sql.*;
 import javax.swing.*;
-import java.io.File;
 
 public class Server
 {
@@ -98,28 +97,40 @@ class ClientHandler extends Thread
 			outputMessage(user.getUsername() + " has connected.");
 			updateUserList();
 			String received = input.nextLine();
+
 			while (!received.equals("/quit"))
 			{
-				if(received.substring(0,5).equals("/open"))
+				if(received.substring(0,1).equals("/"))
 				{
-					String file = received.substring(6);
-					output.println("FileOpen:" + file);
-					file = "media" + File.separator + file;
-					try
+					if(received.substring(0,5).equals("/open"))
 					{
-						FileInputStream fileInput = new FileInputStream(file);
-						long fLength = new File(file).length();
-						int intFLength = (int)fLength;
-						byte[] byteArray = new byte[intFLength];
-						fileInput.read(byteArray);
-						fileInput.close();
-						fileOutput.writeObject(byteArray);
-						fileOutput.flush();
+						String fileName = received.substring(6);
+						File file = new File("media" + File.separator + fileName);
+						if(file.exists())
+						{
+							output.println("FileOpen:" + fileName);
+							try
+							{
+								FileInputStream fileInput = new FileInputStream(file);
+								long fLength = file.length();
+								int intFLength = (int)fLength;
+								byte[] byteArray = new byte[intFLength];
+
+								fileInput.read(byteArray);
+								fileInput.close();
+								fileOutput.writeObject(byteArray);
+								fileOutput.flush();
+							}
+							catch (IOException e)
+							{
+								System.out.println(e);
+							}
+						}
+						else
+							output.println("Requested file (" + fileName + ") does not exist.");
 					}
-					catch (IOException e)
-					{
-						System.out.println(e);
-					}
+					else
+						output.println("Unknown system command.");
 				}
 				else
 					outputMessage(user.getUsername() + "> " + received);
@@ -187,11 +198,6 @@ class ClientHandler extends Thread
 		{
 			System.out.println(e);
 		}
-	}
-
-	public void sendFile(String file, ObjectOutputStream outputStream)
-	{
-
 	}
 }
 
