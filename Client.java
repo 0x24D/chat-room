@@ -34,7 +34,8 @@ public class Client extends JFrame implements ControllerListener
         try
         {
             host = InetAddress.getLocalHost();
-        } catch (UnknownHostException uhEx)
+        }
+        catch (UnknownHostException uhEx)
         {
             outputField.append("\nHost ID not found!\n");
         }
@@ -70,7 +71,8 @@ public class Client extends JFrame implements ControllerListener
                     message = networkInput.nextLine();
                 }
                 userList.setListData(users);
-            } else if (message.substring(0, 8).equals("FileOpen"))
+            }
+            else if (message.substring(0, 8).equals("FileOpen"))
             {
                 try
                 { // download file
@@ -94,7 +96,8 @@ public class Client extends JFrame implements ControllerListener
                         ImageIcon image = new ImageIcon(byteArray);
                         JLabel label = new JLabel(image);
                         dialog.add(label);
-                    } else // display audio/video
+                    }
+                    else // display audio/video
                     {
                         URI uri = file.toURI();
                         try
@@ -109,14 +112,17 @@ public class Client extends JFrame implements ControllerListener
                     }
                     dialog.pack();
                     dialog.setVisible(true);
-                } catch (IOException e)
-                {
-                    e.printStackTrace(); // change
-                } catch (ClassNotFoundException e)
+                }
+                catch (IOException e)
                 {
                     e.printStackTrace(); // change
                 }
-            } else
+                catch (ClassNotFoundException e)
+                {
+                    e.printStackTrace(); // change
+                }
+            }
+            else
             outputField.append(message + "\n");
             message = networkInput.nextLine();
         }
@@ -128,7 +134,8 @@ public class Client extends JFrame implements ControllerListener
             userList.setListData(users);
             socket.close();
             keyboard.close();
-        } catch (IOException ioEx)
+        }
+        catch (IOException ioEx)
         {
             outputField.append("\n* Disconnection problem! *\n");
         }
@@ -254,18 +261,18 @@ public class Client extends JFrame implements ControllerListener
 
     public void controllerUpdate(ControllerEvent e)
     {
-        Container pane = dialog.getContentPane();
+        //Container pane = dialog.getContentPane();
 
         if (e instanceof RealizeCompleteEvent)
         {
             Component visualComponent = player.getVisualComponent();
             if (visualComponent != null)
-            pane.add(visualComponent);
+            dialog.add(visualComponent);
 
             Component controlsComponent = player.getControlPanelComponent();
             if (controlsComponent != null)
-            pane.add(controlsComponent);
-            pane.doLayout();
+            dialog.add(controlsComponent);
+            //pane.doLayout();
         }
     }
 

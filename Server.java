@@ -17,7 +17,8 @@ public class Server
         try
         {
             serverSocket = new ServerSocket(PORT);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             System.out.println("\nUnable to set up port!");
             System.exit(1);
@@ -26,7 +27,8 @@ public class Server
         try
         {
             connection = DriverManager.getConnection("jdbc:mysql://192.168.0.2:3306/chatroom", "root", "root");
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             System.out.println("\nCannot connect to database!\n");
             System.exit(1);
@@ -77,11 +79,10 @@ class ClientHandler extends Thread
             ResultSet results = statement.executeQuery(query);
 
             while (results.next() && !validLogin)
-            {
                 if (results.getString("password").equals(password))
-                validLogin = true;
-            }
-        } catch (SQLException e)
+                    validLogin = true;
+        }
+        catch (SQLException e)
         {
             output.println("Unable to validate user, please try again later.");
         }
@@ -117,26 +118,33 @@ class ClientHandler extends Thread
                                 fileInput.close();
                                 fileOutput.writeObject(byteArray);
                                 fileOutput.flush();
-                            } catch (IOException e)
+                            }
+                            catch (IOException e)
                             {
                                 System.out.println(e);
                             }
-                        } else
-                        output.println("Requested file (" + fileName + ") does not exist.");
-                    } else if (received.length() >= 5 && received.substring(0, 5).equals("/name"))
+                        }
+                        else
+                            output.println("Requested file (" + fileName + ") does not exist.");
+                    }
+                    else if (received.length() >= 5 && received.substring(0, 5).equals("/name"))
                     {
                         updateDatabase(connection, "Users", "username", received.substring(6));
-                    } else if (received.length() >= 9 && received.substring(0, 9).equals("/password"))
+                    }
+                    else if (received.length() >= 9 && received.substring(0, 9).equals("/password"))
                     {
                         updateDatabase(connection, "Users", "password", received.substring(10));
-                    } else
-                    output.println("Unknown system command.");
-                } else
-                outputMessage(user.getUsername() + "> " + received);
+                    }
+                    else
+                        output.println("Unknown system command.");
+                }
+                else
+                    outputMessage(user.getUsername() + "> " + received);
                 received = input.nextLine();
             }
-        } else
-        output.println("Invalid user! Open a new client to try again.");
+        }
+        else
+            output.println("Invalid user! Open a new client to try again.");
 
         try
         {
@@ -150,7 +158,8 @@ class ClientHandler extends Thread
             userList.remove(userList.indexOf(user));
             updateUserList();
 
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             System.out.println("* Disconnection problem! *");
         }
@@ -166,9 +175,7 @@ class ClientHandler extends Thread
                 tempOutput = new PrintWriter((user.getSocket()).getOutputStream(), true);
                 tempOutput.println("CUStart");
                 for (User connectedUser : userList)
-                {
                     tempOutput.println(connectedUser.getUsername());
-                }
                 tempOutput.println("CUEnd");
             }
         } catch (IOException e)
@@ -187,7 +194,8 @@ class ClientHandler extends Thread
                 tempOutput = new PrintWriter((user.getSocket()).getOutputStream(), true);
                 tempOutput.println(message);
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             System.out.println(e);
         }
@@ -196,16 +204,15 @@ class ClientHandler extends Thread
     public void updateDatabase(Connection connection, String table, String field, String data)
     {
         int resultsChanged = 0;
-        String update = "UPDATE " + table + " SET " + field + " = '" + data + "' WHERE username = '" + user.getUsername()
-        + "';";
+        String update = "UPDATE " + table + " SET " + field + " = '" + data + "' WHERE username = '" + user.getUsername() + "';";
 
         try
         {
             Statement statement = connection.createStatement();
             resultsChanged = statement.executeUpdate(update);
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
-            e.printStackTrace();
             output.println("Unable to update user details.");
         }
         if (resultsChanged >= 1)
@@ -213,8 +220,13 @@ class ClientHandler extends Thread
             if (field.equals("username"))
             {
                 user.updateUsername(data);
+                for (User connectedUser: userlist) //might not be needed - updateUsername may work
+                    if(connectedUser.getUsername().equals(user.getUsername()))
+                        connectedUser.username = data;
+                updateUserList();
                 output.println("Username has been changed.");
-            } else
+            }
+            else
             output.println("Password has been changed.");
         }
     }
