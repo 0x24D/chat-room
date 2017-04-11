@@ -26,7 +26,7 @@ public class Server
 
         try
         {
-            connection = DriverManager.getConnection("jdbc:mysql://192.168.0.2:3306/chatroom", "root", "root");
+            connection = DriverManager.getConnection("jdbc:mysql://192.168.0.3:3306/chatroom", "root", "root");
         }
         catch (SQLException e)
         {
@@ -150,7 +150,7 @@ class ClientHandler extends Thread
         {
             System.out.println("Closing down connection...");
             output.println("UserQuit");
-            System.out.println(user.getUsername() + ", " + user.getSocket() + " disconnected.");
+            System.out.println(user.getUsername() + " disconnected.");
             outputMessage(user.getUsername() + " has disconnected.");
             input.close();
             output.close();
@@ -219,15 +219,14 @@ class ClientHandler extends Thread
         {
             if (field.equals("username"))
             {
+        	String oldUsername = user.getUsername();
                 user.updateUsername(data);
-                for (User connectedUser: userlist) //might not be needed - updateUsername may work
-                    if(connectedUser.getUsername().equals(user.getUsername()))
-                        connectedUser.username = data;
                 updateUserList();
-                output.println("Username has been changed.");
+                outputMessage(oldUsername + " is now known as " + user.getUsername());
+                System.out.println(oldUsername + " is now known as " + user.getUsername());
             }
             else
-            output.println("Password has been changed.");
+        	output.println("Password has been changed.");
         }
     }
 }

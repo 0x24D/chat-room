@@ -79,23 +79,24 @@ public class Client extends JFrame implements ControllerListener
                     byte[] byteArray = (byte[]) fileIn.readObject();
                     FileOutputStream fileOutput = new FileOutputStream(message.substring(9));
                     fileOutput.write(byteArray);
-
-                    // get local file details
+                    fileOutput.close();
+                    
+                    // setup local file
                     File file = new File(message.substring(9));
                     FileInputStream localFile = new FileInputStream(file);
-                    String mimeType = (Files.probeContentType(file.toPath())).substring(0, 5);
-                    // TODO: nullpointerexception - add File.exists()
+                    
                     // open local file
                     dialog = new JDialog();
                     byteArray = new byte[(int) file.length()];
                     localFile.read(byteArray);
                     localFile.close();
 
-                    if (mimeType.equals("image")) // display image
+                    if (Files.probeContentType(file.toPath()) != null) // display image
                     {
                         ImageIcon image = new ImageIcon(byteArray);
                         JLabel label = new JLabel(image);
                         dialog.add(label);
+                        dialog.pack();
                     }
                     else // display audio/video
                     {
@@ -103,14 +104,14 @@ public class Client extends JFrame implements ControllerListener
                         try
                         {
                             player = Manager.createPlayer(uri.toURL());
-                        } catch (NoPlayerException e)
+                        } 
+                        catch (NoPlayerException e)
                         {
                             e.printStackTrace();
                         }
                         player.addControllerListener(frame);
                         player.start();
                     }
-                    dialog.pack();
                     dialog.setVisible(true);
                 }
                 catch (IOException e)
@@ -261,18 +262,16 @@ public class Client extends JFrame implements ControllerListener
 
     public void controllerUpdate(ControllerEvent e)
     {
-        //Container pane = dialog.getContentPane();
-
         if (e instanceof RealizeCompleteEvent)
         {
             Component visualComponent = player.getVisualComponent();
             if (visualComponent != null)
-            dialog.add(visualComponent);
+        	dialog.add(visualComponent);
 
             Component controlsComponent = player.getControlPanelComponent();
             if (controlsComponent != null)
-            dialog.add(controlsComponent);
-            //pane.doLayout();
+        	dialog.add(controlsComponent);
+            dialog.pack();
         }
     }
 
