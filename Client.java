@@ -16,9 +16,10 @@ public class Client extends JFrame implements ControllerListener
     private static Vector<String> users;
     private static JPanel detailsPanel;
     private static JPasswordField passwordField;
-    private static ImageIcon image;
     private static JDialog dialog;
     private static Player player;
+    private static Client frame;
+    private static ObjectInputStream fileIn;
 
     public static void main(String[] args) throws IOException
     {
@@ -28,8 +29,6 @@ public class Client extends JFrame implements ControllerListener
         Scanner keyboard, networkInput;
         PrintWriter output;
         MessageThread thread;
-        Client frame;
-        ObjectInputStream fileIn;
 
         try
         {
@@ -71,61 +70,27 @@ public class Client extends JFrame implements ControllerListener
                     message = networkInput.nextLine();
                 }
                 userList.setListData(users);
+                message = networkInput.nextLine();
             }
-            else if (message.substring(0, 8).equals("FileOpen"))
+            else if(message.length() >= 8 && !message.substring(0, 8).equals("FileOpen"))
             {
-                try
-                { // download file
-                    byte[] byteArray = (byte[]) fileIn.readObject();
-                    FileOutputStream fileOutput = new FileOutputStream(message.substring(9));
-                    fileOutput.write(byteArray);
-                    fileOutput.close();
-                    
-                    // setup local file
-                    File file = new File(message.substring(9));
-                    FileInputStream localFile = new FileInputStream(file);
-                    
-                    // open local file
-                    dialog = new JDialog();
-                    byteArray = new byte[(int) file.length()];
-                    localFile.read(byteArray);
-                    localFile.close();
-
-                    if (Files.probeContentType(file.toPath()) != null) // display image
-                    {
-                        ImageIcon image = new ImageIcon(byteArray);
-                        JLabel label = new JLabel(image);
-                        dialog.add(label);
-                        dialog.pack();
-                    }
-                    else // display audio/video
-                    {
-                        URI uri = file.toURI();
-                        try
-                        {
-                            player = Manager.createPlayer(uri.toURL());
-                        } 
-                        catch (NoPlayerException e)
-                        {
-                            e.printStackTrace();
-                        }
-                        player.addControllerListener(frame);
-                        player.start();
-                    }
-                    dialog.setVisible(true);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace(); // change
-                }
-                catch (ClassNotFoundException e)
-                {
-                    e.printStackTrace(); // change
-                }
-            }
-            else
             outputField.append(message + "\n");
+//                File file = new File(message.substring(9));
+//                try
+//                {
+//                    downloadFile(fileIn, file);
+//                }
+//                catch (ClassNotFoundException e)
+//                {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//                openFile(file);
             message = networkInput.nextLine();
+            }
+//            else
+//
+
         }
 
         try
@@ -146,7 +111,7 @@ public class Client extends JFrame implements ControllerListener
     {
         JPanel panel, leftPanel, rightPanel;
         JPanel outputPanel, inputPanel, usersPanel, buttonsPanel;
-        JButton sendButton, quitButton;
+        JButton sendButton, quitButton, fileButton;
         JLabel usersLabel, userLabel, passwordLabel;
         Listener listener;
 
@@ -158,7 +123,7 @@ public class Client extends JFrame implements ControllerListener
         detailsPanel = new JPanel();
         outputPanel = new JPanel();
         inputPanel = new JPanel();
-        usersPanel = new JPanel(); // change width
+        usersPanel = new JPanel();
         buttonsPanel = new JPanel();
         outputField = new JTextArea(34, 45);
         inputField = new JTextField(44);
@@ -167,8 +132,9 @@ public class Client extends JFrame implements ControllerListener
         usersLabel = new JLabel("Connected users:");
         userLabel = new JLabel("Username: ");
         passwordLabel = new JLabel("Password: ");
-        sendButton = new JButton("Send message.");
-        quitButton = new JButton("Quit.");
+        sendButton = new JButton("Send message");
+        quitButton = new JButton("Quit");
+        fileButton = new JButton("Display file");
         listener = new Listener(output);
 
         outputField.setWrapStyleWord(true);
@@ -210,14 +176,19 @@ public class Client extends JFrame implements ControllerListener
         usersPanel.add(usersLabel);
         usersPanel.add(new JScrollPane(userList));
         buttonsPanel.add(sendButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0,5)));
+        buttonsPanel.add(fileButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0,5)));
         buttonsPanel.add(quitButton);
         detailsPanel.add(userLabel);
         detailsPanel.add(userField);
+        detailsPanel.add(Box.createRigidArea(new Dimension(0,5)));
         detailsPanel.add(passwordLabel);
         detailsPanel.add(passwordField);
 
         usersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        fileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         quitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         sendButton.addActionListener(new ActionListener()
@@ -233,6 +204,30 @@ public class Client extends JFrame implements ControllerListener
             public void actionPerformed(ActionEvent e)
             {
                 output.println("/quit");
+            }
+        });
+        fileButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent aE)
+            {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                int selection = fileChooser.showSaveDialog(frame);
+                if(selection == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = fileChooser.getSelectedFile();
+                    output.println("/open " + file.getName());
+                    try
+                    {
+                        downloadFile(fileIn, file);
+                        openFile(file);
+                    }
+                    catch (ClassNotFoundException | IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                }
             }
         });
         inputField.addKeyListener(new KeyListener()
@@ -265,14 +260,71 @@ public class Client extends JFrame implements ControllerListener
         if (e instanceof RealizeCompleteEvent)
         {
             Component visualComponent = player.getVisualComponent();
-            if (visualComponent != null)
-        	dialog.add(visualComponent);
-
             Component controlsComponent = player.getControlPanelComponent();
+
+            if (visualComponent != null)
+                dialog.add(visualComponent, BorderLayout.NORTH);
+
             if (controlsComponent != null)
-        	dialog.add(controlsComponent);
+                dialog.add(controlsComponent, BorderLayout.SOUTH);
+
+            dialog.doLayout();
             dialog.pack();
         }
+    }
+
+    private static void downloadFile(ObjectInputStream fileIn, File file) throws IOException, ClassNotFoundException
+    {
+        byte[] byteArray = (byte[]) fileIn.readObject();
+        FileOutputStream fileOutput = new FileOutputStream(file);
+        fileOutput.write(byteArray);
+        fileOutput.close();
+    }
+
+    private static void openFile(File file) throws IOException
+    {
+        if(!file.exists())
+            outputField.append("File does not exist.");
+        FileInputStream localFile = new FileInputStream(file);
+
+        // open local file
+        dialog = new JDialog();
+        byte[] byteArray = new byte[(int) file.length()];
+        localFile.read(byteArray);
+        localFile.close();
+
+        if((Files.probeContentType(file.toPath())).substring(0, 5).equals("image")) // display image
+        {
+            ImageIcon image = new ImageIcon(byteArray);
+            JLabel label = new JLabel(image);
+            dialog.add(label);
+            dialog.pack();
+        }
+        else // display audio/video
+        {
+            if(player != null)
+            {
+                Component visualComponent = player.getVisualComponent();
+                Component controlsComponent = player.getControlPanelComponent();
+
+                dialog.remove(visualComponent);
+                dialog.remove(controlsComponent);
+
+                player.stop();
+            }
+            URI uri = file.toURI();
+            try
+            {
+                player = Manager.createPlayer(uri.toURL());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            player.addControllerListener(frame);
+            player.start();
+        }
+        dialog.setVisible(true);
     }
 
     class Listener extends WindowAdapter

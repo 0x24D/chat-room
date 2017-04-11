@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.sql.*;
-import javax.swing.*;
 
 public class Server
 {
@@ -106,7 +105,7 @@ class ClientHandler extends Thread
                         File file = new File("media" + File.separator + fileName);
                         if (file.exists())
                         {
-                            output.println("FileOpen:" + fileName);
+                            output.println("FileOpen");//" + fileName);
                             try
                             {
                                 FileInputStream fileInput = new FileInputStream(file);
@@ -128,13 +127,9 @@ class ClientHandler extends Thread
                             output.println("Requested file (" + fileName + ") does not exist.");
                     }
                     else if (received.length() >= 5 && received.substring(0, 5).equals("/name"))
-                    {
                         updateDatabase(connection, "Users", "username", received.substring(6));
-                    }
                     else if (received.length() >= 9 && received.substring(0, 9).equals("/password"))
-                    {
                         updateDatabase(connection, "Users", "password", received.substring(10));
-                    }
                     else
                         output.println("Unknown system command.");
                 }
@@ -157,7 +152,6 @@ class ClientHandler extends Thread
             client.close();
             userList.remove(userList.indexOf(user));
             updateUserList();
-
         }
         catch (IOException e)
         {
@@ -219,14 +213,14 @@ class ClientHandler extends Thread
         {
             if (field.equals("username"))
             {
-        	String oldUsername = user.getUsername();
+                String oldUsername = user.getUsername();
                 user.updateUsername(data);
                 updateUserList();
                 outputMessage(oldUsername + " is now known as " + user.getUsername());
                 System.out.println(oldUsername + " is now known as " + user.getUsername());
             }
             else
-        	output.println("Password has been changed.");
+                output.println("Password has been changed.");
         }
     }
 }
