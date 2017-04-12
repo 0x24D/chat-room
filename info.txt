@@ -1,0 +1,6 @@
+Here are the available system commands:
+/info - display this message
+/name <new username> - change username to entered name
+/open <file name> - open entered file (can also use 'Display file' button)
+/password <new password> - change password to entered password
+/quit - disconnect from server (can also use 'Quit' button or close the window)
