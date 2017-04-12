@@ -25,7 +25,8 @@ public class Server
 
 	try
 	{
-	    connection = DriverManager.getConnection("jdbc:mysql://192.168.0.2:3306/chatroom", "root", "root");
+        connection = DriverManager.getConnection("jdbc:mysql://"+
+            "xxx", "xxx", "xxx");
 	}
 	catch (SQLException e)
 	{
@@ -70,7 +71,8 @@ class ClientHandler extends Thread
 	boolean validLogin = false;
 	String username = input.nextLine();
 	String password = input.nextLine();
-	String query = "SELECT password FROM Users WHERE username = '" + username + "';";
+	String query = "SELECT password FROM Users "+
+                                        "WHERE username = '" + username + "';";
 
 	try
 	{
@@ -99,14 +101,23 @@ class ClientHandler extends Thread
 	    {
 		if (received.substring(0, 1).equals("/"))
 		{
-		    if (received.length() > 5 && received.substring(0, 5).equals("/open"))
+		    if (received.length() >= 5 &&
+                                    received.substring(0, 5).equals("/open"))
 			uploadFile(received.substring(0,5), received.substring(6));
-		    else if (received.length() > 5 && received.substring(0, 5).equals("/name"))
-			updateDatabase(connection, "Users", "username", received.substring(6));
-		    else if(received.length() > 8 && received.substring(0, 8).equals("/GUIopen"))
+		    else if(received.length() >= 5 &&
+                                    received.substring(0, 5).equals("/name"))
+			updateDatabase(connection, "Users",
+                                            "username", received.substring(6));
+		    else if(received.length() >= 5 &&
+                                    received.substring(0, 5).equals("/info"))
+			output.println("/info");
+		    else if(received.length() >= 8 &&
+                                received.substring(0, 8).equals("/GUIopen"))
 			uploadFile(received.substring(0, 8),received.substring(9));
-		    else if (received.length() > 9 && received.substring(0, 9).equals("/password"))
-			updateDatabase(connection, "Users", "password", received.substring(10));
+		    else if(received.length() >= 9 &&
+                                received.substring(0, 9).equals("/password"))
+			updateDatabase(connection, "Users",
+                                            "password", received.substring(10));
 		    else
 			output.println("Unknown system command.");
 		}
@@ -200,10 +211,12 @@ class ClientHandler extends Thread
 	}
     }
 
-    private void updateDatabase(Connection connection, String table, String field, String data)
+    private void updateDatabase(Connection connection, String table,
+                                                        String field, String data)
     {
 	int resultsChanged = 0;
-	String update = "UPDATE " + table + " SET " + field + " = '" + data + "' WHERE username = '" + user.getUsername() + "';";
+	String update = "UPDATE " + table + " SET " + field + " = '"
+                    + data + "' WHERE username = '" + user.getUsername() + "';";
 
 	try
 	{

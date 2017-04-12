@@ -53,7 +53,8 @@ public class Client extends JFrame implements ControllerListener
 	frame.setVisible(true);
 	frame.pack();
 	thread.start();
-	JOptionPane.showConfirmDialog(frame, detailsPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
+	JOptionPane.showConfirmDialog(frame, detailsPanel, "Login",
+                                                JOptionPane.OK_CANCEL_OPTION);
 
 	output.println(userField.getText());
 	output.println(passwordField.getPassword());
@@ -72,31 +73,39 @@ public class Client extends JFrame implements ControllerListener
 		}
 		userList.setListData(users);
 	    }
-	    else if(message.length() > 5){ 
-		if(message.substring(0, 5).equals("/open"))
+	    else if(message.length() >= 5 && message.substring(0, 5).equals("/open"))
+	    {
+		File file = new File(message.substring(6));
+		try
 		{
-		    File file = new File(message.substring(6));
-		    try
-		    {
-			downloadFile(fileIn, file);
-		    }
-		    catch (ClassNotFoundException e)
-		    {
-			e.printStackTrace();
-		    }
-		    openFile(file);
+		    downloadFile(fileIn, file);
 		}
-		else if(message.substring(0, 5).equals("/info"))
+		catch (ClassNotFoundException e)
 		{
-		    // TODO: pop-up box with system commands (and time/date?)
+		    e.printStackTrace();
 		}
+		openFile(file);
 	    }
-	    else if(message.length() > 8 && message.substring(0, 8).equals("/GUIopen"))
+	    else if(message.length() >= 5 && message.substring(0, 5).equals("/info"))
+	    {
+		dialog = new JDialog();
+		dialog.getRootPane().setBorder(new EmptyBorder(10, 10, 10, 10));
+		JTextArea textArea = new JTextArea();
+		dialog.add(textArea);
+		BufferedReader in = new BufferedReader(new FileReader("info.txt"));
+		String line;
+		while ((line = in.readLine()) != null)
+		    textArea.append(line + "\n");
+		in.close();
+		dialog.pack();
+		dialog.setVisible(true);
+	    }
+	    else if(message.length() >= 8 && message.substring(0, 8).equals("/GUIopen"))
 	    {
 		try
 		{
 		    downloadFile(fileIn, selectedFile);
-		} 
+		}
 		catch (ClassNotFoundException e)
 		{
 		    e.printStackTrace();
@@ -278,7 +287,8 @@ public class Client extends JFrame implements ControllerListener
 	}
     }
 
-    private static void downloadFile(ObjectInputStream fileIn, File file) throws IOException, ClassNotFoundException
+    private static void downloadFile(ObjectInputStream fileIn, File file)
+                                    throws IOException, ClassNotFoundException
     {
 	byte[] byteArray = (byte[]) fileIn.readObject();
 	FileOutputStream fileOutput = new FileOutputStream(file);
@@ -297,7 +307,8 @@ public class Client extends JFrame implements ControllerListener
 	localFile.read(byteArray);
 	localFile.close();
 
-	if((Files.probeContentType(file.toPath())).substring(0, 5).equals("image")) // display image
+	if((Files.probeContentType(file.toPath())).
+                                substring(0, 5).equals("image")) // display image
 	{
 	    ImageIcon image = new ImageIcon(byteArray);
 	    JLabel label = new JLabel(image);
